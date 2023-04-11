@@ -275,7 +275,7 @@ class CacheViewsPosts(TestCase):
         self.assertNotEqual(context, context_after_clean)
 
 
-class CFollowViewsPosts(TestCase):
+class CFollowViewsPostsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -299,15 +299,15 @@ class CFollowViewsPosts(TestCase):
 
     def test_posts_authorized_index(self):
         response = (self.authorized_client.get(reverse('posts:index')))
-        context = response.context
+        content = response.content
         self.post.delete()
         response = (self.authorized_client.get(reverse('posts:index')))
-        context_after_delete = response.context
-        self.assertEqual(context, context_after_delete)
+        content_after_delete = response.content
+        self.assertEqual(content, content_after_delete)
         cache.clear()
         response = (self.authorized_client.get(reverse('posts:index')))
-        context_after_clean = response.context
-        self.assertNotEqual(context, context_after_clean)
+        content_after_clean = response.content
+        self.assertNotEqual(content_after_delete, content_after_clean)
 
 
 class FollowViewTests(TestCase):
