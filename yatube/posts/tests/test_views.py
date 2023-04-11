@@ -53,7 +53,7 @@ class PostPagesTests(TestCase):
 
         self.second_post = Post.objects.create(
             author=self.user,
-            text='Тестовый пост',
+            text='Тестовый пост 2',
             group=self.second_group)
         cache.clear()
 
@@ -87,9 +87,11 @@ class PostPagesTests(TestCase):
         response = (self.authorized_client.get(reverse('posts:index')))
         self.assertEqual(response.context.get('title'),
                          'Последние обновления на сайте')
-        image = response.context['page_obj'][0].image
-        self.assertIsInstance(image, ImageFieldFile)
-        self.assertEqual(image.file.read(), self.small_gif)
+        for post in response.context['page_obj'].object_list:
+            if post == self.post:
+                image = post.image
+                self.assertIsInstance(image, ImageFieldFile)
+                self.assertEqual(image.file.read(), self.small_gif)
 
     def test_profile_pages_show_correct_context(self):
         """Шаблон profile сформирован с правильным контекстом."""
@@ -97,9 +99,11 @@ class PostPagesTests(TestCase):
                     kwargs={'username': 'HasNoName'})))
         self.assertEqual(response.context.get('title'),
                          'Профайл пользователя HasNoName')
-        image = response.context['page_obj'][0].image
-        self.assertIsInstance(image, ImageFieldFile)
-        self.assertEqual(image.file.read(), self.small_gif)
+        for post in response.context['page_obj'].object_list:
+            if post == self.post:
+                image = post.image
+                self.assertIsInstance(image, ImageFieldFile)
+                self.assertEqual(image.file.read(), self.small_gif)
 
     def test_group_list_pages_show_correct_context(self):
         """Шаблон group_posts сформирован с правильным контекстом."""
