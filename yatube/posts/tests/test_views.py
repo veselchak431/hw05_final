@@ -245,45 +245,15 @@ class CacheViewsPosts(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
             description='Тестовое описание',
         )
-
-    def setUp(self):
-        self.user = User.objects.create_user(username='HasNoName')
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
-        self.post = Post.objects.create(
-            author=self.user,
-            text='Тестовый пост',
-            group=self.group
-        )
-
-    def test_posts_cache_index(self):
-        response = (self.authorized_client.get(reverse('posts:index')))
-        context = response.context
-        self.post.delete()
-        response = (self.authorized_client.get(reverse('posts:index')))
-        context_after_delete = response.context
-        self.assertEqual(context, context_after_delete)
-        cache.clear()
-        response = (self.authorized_client.get(reverse('posts:index')))
-        context_after_clean = response.context
-        self.assertNotEqual(context, context_after_clean)
-
-
-class CFollowViewsPostsTests(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test-slug',
-            description='Тестовое описание',
+        cls.second_group = Group.objects.create(
+            title='Вторая группа',
+            slug='second-group',
+            description='группа для проверки на разных страницах',
         )
 
     def setUp(self):
@@ -291,23 +261,35 @@ class CFollowViewsPostsTests(TestCase):
         self.user = User.objects.create_user(username='HasNoName')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+
         self.post = Post.objects.create(
             author=self.user,
             text='Тестовый пост',
             group=self.group
         )
 
-    def test_posts_authorized_index(self):
-        response = (self.authorized_client.get(reverse('posts:index')))
+        self.second_post = Post.objects.create(
+            author=self.user,
+            text='Тестовый пост 2',
+            group=self.second_group)
+        cache.clear()
+
+    def test_posts_cache_index(self):
+        response = (self.guest_client.get(reverse('posts:index')))
         content = response.content
         self.post.delete()
-        response = (self.authorized_client.get(reverse('posts:index')))
+        print(content)
+        response = (self.guest_client.get(reverse('posts:index')))
+
         content_after_delete = response.content
+        print(content_after_delete)
         self.assertEqual(content, content_after_delete)
+
         cache.clear()
-        response = (self.authorized_client.get(reverse('posts:index')))
+        response = (self.guest_client.get(reverse('posts:index')))
         content_after_clean = response.content
-        self.assertNotEqual(content_after_delete, content_after_clean)
+        print(content_after_clean)
+        self.assertNotEqual(content, content_after_clean)
 
 
 class FollowViewTests(TestCase):
