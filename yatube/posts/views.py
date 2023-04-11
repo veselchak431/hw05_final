@@ -21,7 +21,7 @@ def get_paginator_context(queryset, request):
     }
 
 
-@cache_page(20*60)
+@cache_page(20 * 60)
 def index(request):
     template = 'posts/index.html'
     posts = Post.objects.all()

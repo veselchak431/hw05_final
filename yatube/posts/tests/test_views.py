@@ -278,17 +278,17 @@ class CacheViewsPosts(TestCase):
         response = (self.guest_client.get(reverse('posts:index')))
         content = response.content
         self.post.delete()
-        print(content)
+
         response = (self.guest_client.get(reverse('posts:index')))
 
         content_after_delete = response.content
-        print(content_after_delete)
+
         self.assertEqual(content, content_after_delete)
 
         cache.clear()
         response = (self.guest_client.get(reverse('posts:index')))
         content_after_clean = response.content
-        print(content_after_clean)
+
         self.assertNotEqual(content, content_after_clean)
 
 
