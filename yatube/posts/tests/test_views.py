@@ -176,7 +176,7 @@ class PostPagesTests(TestCase):
 
     def test_guest_try_create_post(self):
         url = reverse('posts:post_create')
-        redirect_url = '/auth/login/?login=/create/'
+        redirect_url = f'/auth/login/?login=/create/'
         response = self.guest_client.get(url)
         self.assertRedirects(response, redirect_url)
 
