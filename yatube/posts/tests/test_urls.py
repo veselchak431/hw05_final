@@ -54,20 +54,22 @@ class PostURLTests(TestCase):
 
     def test_urls_guest_client_try_update_post(self):
         url = reverse('posts:post_edit', kwargs={'post_id': self.post.id})
-        redirect_url = f'/posts/{self.post.id}/'
+        redirect_url = reverse('posts:post_detail',
+                               kwargs={'post_id': self.post.id})
         response = self.guest_client.get(url)
         self.assertRedirects(response, redirect_url)
 
     def test_urls_guest_client_try_make_comment(self):
-        url = reverse('posts:post_edit', kwargs={'post_id': self.post.id})
-        redirect_url = f'/posts/{self.post.id}/'
+        url = reverse('posts:add_comment', kwargs={'post_id': self.post.id})
+        redirect_url = f'/auth/login/?next=/posts/{self.post.id}/comment/'
         response = self.guest_client.get(url)
         self.assertRedirects(response, redirect_url)
 
     def test_urls_not_author_try_update_post(self):
-        url = reverse('posts:add_comment', kwargs={'post_id': self.post.id})
-        redirect_url = f'/auth/login/?next=/posts/{self.post.id}/comment/'
-        response = self.guest_client.get(url)
+        url = reverse('posts:post_edit', kwargs={'post_id': self.post.id})
+        redirect_url = reverse('posts:post_detail',
+                               kwargs={'post_id': self.post.id})
+        response = self.authorized_second_client.get(url)
         self.assertRedirects(response, redirect_url)
 
     def test_urls_unexisting_page(self):

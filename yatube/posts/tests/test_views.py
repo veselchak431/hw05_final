@@ -32,6 +32,9 @@ class PostPagesTests(TestCase):
         self.user = User.objects.create_user(username='HasNoName')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.second_user = User.objects.create_user(username='SecondUser')
+        self.authorized_second_client = Client()
+        self.authorized_second_client.force_login(self.second_user)
         self.small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04'
             b'\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02'
@@ -163,6 +166,19 @@ class PostPagesTests(TestCase):
 
             self.assertIn(self.second_post,
                           response.context.get('page_obj').object_list)
+
+    def test_not_author_try_update_post(self):
+        url = reverse('posts:post_edit', kwargs={'post_id': self.post.id})
+        redirect_url = reverse('posts:post_detail',
+                               kwargs={'post_id': self.post.id})
+        response = self.authorized_second_client.get(url)
+        self.assertRedirects(response, redirect_url)
+
+    def test_guest_try_create_post(self):
+        url = reverse('posts:post_create')
+        redirect_url = '/auth/login/?login=/create/'
+        response = self.guest_client.get(url)
+        self.assertRedirects(response, redirect_url)
 
 
 class PaginatorViewsPosts(TestCase):
