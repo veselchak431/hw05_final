@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 from posts.models import Group, Post, Comment
@@ -20,6 +21,21 @@ class TaskCreateFormTests(TestCase):
         self.user = User.objects.create_user(username='HasNoName')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        self.image = SimpleUploadedFile(
+            name='small.png',
+            content=self.small_gif,
+            content_type='image/gif'
+        )
+        self.wrong_image = SimpleUploadedFile(
+            name='small.pppppp',
+            content=self.small_gif,
+            content_type='image/gif'
+        )
         self.post = Post.objects.create(
             author=self.user,
             text='Тестовый пост',
@@ -31,7 +47,8 @@ class TaskCreateFormTests(TestCase):
         posts_count = Post.objects.count()
         form_data = {
             'text': 'Тестовый текст',
-            'group': self.group.id
+            'group': self.group.id,
+            'image': self.image
         }
 
         # Отправляем POST-запрос
@@ -48,6 +65,26 @@ class TaskCreateFormTests(TestCase):
         self.assertEqual(Post.objects.count(), posts_count + 1)
         # Проверяем, что создалась запись с заданным слагом
         self.assertTrue(
+            Post.objects.filter(
+                text='Тестовый текст',
+                group=self.group
+            ).exists())
+
+    def test_wrong_file_upload(self):
+        posts_count = Post.objects.count()
+        form_data = {
+            'text': 'Тестовый текст',
+            'group': self.group.id,
+            'image': self.wrong_image
+        }
+
+        self.authorized_client.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True)
+
+        self.assertEqual(Post.objects.count(), posts_count)
+        self.assertFalse(
             Post.objects.filter(
                 text='Тестовый текст',
                 group=self.group
