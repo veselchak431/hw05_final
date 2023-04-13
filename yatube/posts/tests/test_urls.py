@@ -54,8 +54,7 @@ class PostURLTests(TestCase):
 
     def test_urls_guest_client_try_update_post(self):
         url = reverse('posts:post_edit', kwargs={'post_id': self.post.id})
-        redirect_url = reverse('posts:post_detail',
-                               kwargs={'post_id': self.post.id})
+        redirect_url = reverse('posts:post_detail', kwargs={'post_id': self.post.id})
         response = self.guest_client.get(url)
         self.assertRedirects(response, redirect_url)
 
