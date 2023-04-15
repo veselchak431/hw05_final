@@ -31,7 +31,9 @@ class PostURLTests(TestCase):
 
     def test_urls_uses_correct_template_authorized_client(self):
         templates_url_names = {
-            reverse('posts:post_edit', kwargs={'post_id': self.post.id}): 'posts/create_post.html',
+            reverse(
+                'posts:post_edit',
+                kwargs={'post_id': self.post.id}): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html'
         }
         for address, template in templates_url_names.items():
