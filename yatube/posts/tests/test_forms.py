@@ -59,7 +59,7 @@ class TaskCreateFormTests(TestCase):
         )
         self.assertRedirects(response,
                              reverse('posts:profile',
-                                     kwargs={'username': 'HasNoName'}))
+                                     kwargs={'username': self.user.username}))
         # Проверяем, увеличилось ли число постов
 
         self.assertEqual(Post.objects.count(), posts_count + 1)
